@@ -1,0 +1,17 @@
+{
+  "name": "counter-visit-github",
+  "version": "1.0.0",
+  "description": "Visit GitHub",
+  "main": "index.js",
+  "repository": "https://github.com/Pierre-Portfolio/counter-visit-github.git",
+  "author": "Pierre-Portfolio <60719810+Pierre-Portfolio@users.noreply.github.com>",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "express": "^4.17.3",
+    "node-fetch": "^3.2.3"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
