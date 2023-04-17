@@ -20,7 +20,7 @@
 - Node.js
 
 ## UI
-<img src="./assets/result.png" alt="Counter" align="center"/>
+<img src="./assets/result.png" alt="Counter" />
 
 ## Authors
 
