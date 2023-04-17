@@ -14,4 +14,4 @@ app.get('/count', async (req, res) => {
     res.end(new Uint8Array(img), 'binary');
 });
 
-app.listen(80, () => console.log('Ready!'));
+app.listen(81, () => console.log('Ready!'));
