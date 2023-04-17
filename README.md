@@ -5,24 +5,24 @@
 
 ---
 
-# COMPTEUR GIT HUB PERSONNALISE
+# Custom GitHub visitor counter
 
-## Petit résumé
+## Brief Summary
 
-- Le fichier readme est le premier fichier qu’un développeur doit consulter avant d’entamer un projet. Ainsi, il est capital que les développeurs sachent rédiger un fichier readme correct pour y compiler les informations pertinentes avec concision.
+- Developers should always refer to the README file before beginning any project. This file contains essential information that should be compiled concisely and accurately. Therefore, it's crucial for developers to know how to create a well-written README file that includes all the relevant details necessary to get started. In this project, you will find a way to stand out from other README files with a customizable counter of your choice !
 
-## Objectifs
+## Objectives
 
-- Personnaliser son compteur de vue github
+- Customize your GitHub visitor counter.
 
-## Techno
+## Technology
 
-- NodeJs
+- Node.js
 
 ## UI
-<img src="./assets/result.png" alt="Compteur" />
+<img src="./assets/result.png" alt="Counter" />
 
-## Auteur
+## Authors
 
 - [@Jason](https://github.com/JasonDhose)
 - [@Pierre](https://github.com/Pierre-Portfolio)
