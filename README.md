@@ -26,3 +26,7 @@
 
 - [@Jason](https://github.com/JasonDhose)
 - [@Pierre](https://github.com/Pierre-Portfolio)
+
+---
+
+<p align="center">Project completed in 2022 & updated in 2023</p>
