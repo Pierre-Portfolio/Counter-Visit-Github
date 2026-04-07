@@ -1,6 +1,8 @@
 //Import
 import fetch from 'node-fetch';
 import express from 'express';
+
+const port = process.env.PORT || 3000;
 const app = express();
 
 app.get('/count', async (req, res) => {
@@ -14,4 +16,4 @@ app.get('/count', async (req, res) => {
     res.end(new Uint8Array(img), 'binary');
 });
 
-app.listen(3000, () => console.log('Ready!'));
+app.listen(port, () => console.log("server running"));
