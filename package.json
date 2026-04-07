@@ -8,8 +8,14 @@
   "license": "MIT",
   "type": "module",
   "dependencies": {
-    "express": "^4.17.3",
-    "node-fetch": "^3.3.1"
+    "body-parser": "~2.2.2",
+    "cookie": "~1.1.1",
+    "express": "~5.2.1",
+    "node-fetch": "^3.3.2",
+    "path-to-regexp": "~8.4.2",
+    "qs": "~6.15.0",
+    "send": "~1.2.1",
+    "serve-static": "~2.2.1"
   },
   "scripts": {
     "start": "node index.js"
