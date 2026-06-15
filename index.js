@@ -1,7 +1,7 @@
 //Import
 import express from 'express';
-import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import { Readable } from 'node:stream';
 
 const port = process.env.PORT || 3000;
 const COUNTER_URL = 'https://counter9.stat.ovh/private/compteurdevisite.php?c=dzct1uqm5lpgwmqn18387dkn26w125w5';
@@ -9,8 +9,9 @@ const FETCH_TIMEOUT = 3 * 60 * 1000; // 3 minutes
 
 const app = express();
 
-// Security headers
-app.use(helmet());
+// Trust the first reverse proxy (Render/Heroku/etc.) so the client IP is
+// resolved correctly for rate limiting.
+app.set('trust proxy', 1);
 
 // Rate limiting: 60 requests / minute / IP
 app.use(rateLimit({
@@ -21,11 +22,6 @@ app.use(rateLimit({
 }));
 
 app.get('/count', async (req, res) => {
-    res.set({
-        'content-type': 'image/png',
-        'cache-control': 'max-age=0, no-cache, no-store, must-revalidate'
-    });
-
     try {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
@@ -37,13 +33,19 @@ app.get('/count', async (req, res) => {
             clearTimeout(timeout);
         }
 
-        if (!response.ok) {
-            return res.status(502).end(`Upstream counter service returned ${response.status}`);
+        const contentType = response.headers.get('content-type') || '';
+        if (!response.ok || !contentType.startsWith('image/')) {
+            return res.status(502).end('Unable to fetch counter image');
         }
 
-        const buffer = Buffer.from(await response.arrayBuffer());
+        res.set({
+            'content-type': contentType,
+            'cache-control': 'max-age=0, no-cache, no-store, must-revalidate'
+        });
 
-        return res.end(buffer, 'binary');
+        // Stream the upstream image straight to the client to avoid
+        // buffering the whole body in memory.
+        Readable.fromWeb(response.body).pipe(res);
     } catch (err) {
         const status = err.name === 'AbortError' ? 504 : 502;
         return res.status(status).end('Unable to fetch counter image');

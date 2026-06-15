@@ -7,10 +7,12 @@
   "author": "Pierre-Portfolio <60719810+Pierre-Portfolio@users.noreply.github.com>",
   "license": "MIT",
   "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "express": "~5.2.1",
-    "express-rate-limit": "^8.5.2",
-    "helmet": "^8.2.0"
+    "express-rate-limit": "^8.5.2"
   },
   "scripts": {
     "start": "node index.js"
