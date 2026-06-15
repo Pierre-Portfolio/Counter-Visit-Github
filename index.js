@@ -2,6 +2,7 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
 import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 
 const port = process.env.PORT || 3000;
 const COUNTER_URL = 'https://counter9.stat.ovh/private/compteurdevisite.php?c=dzct1uqm5lpgwmqn18387dkn26w125w5';
@@ -29,16 +30,20 @@ app.set('trust proxy', parseTrustProxy(process.env.TRUST_PROXY));
 app.use((req, res, next) => {
     res.set({
         'x-content-type-options': 'nosniff',
-        'x-frame-options': 'DENY',
         'referrer-policy': 'no-referrer'
     });
+    // X-Frame-Options: DENY would forbid framing, but /count is an image meant
+    // to be embedded elsewhere, so only apply it to the other (non-image) routes.
+    if (req.path !== '/count') {
+        res.set('x-frame-options', 'DENY');
+    }
     next();
 });
 
 // Rate limiting: 60 requests / minute / IP
 app.use(rateLimit({
     windowMs: 60 * 1000,
-    max: 60,
+    limit: 60,
     standardHeaders: true,
     legacyHeaders: false
 }));
@@ -67,36 +72,23 @@ app.get('/count', async (req, res) => {
         const upstream = Readable.fromWeb(response.body);
         let bytes = 0;
 
-        const cleanup = () => {
-            done();
-            controller.abort();
-            upstream.destroy();
-        };
-
-        // Stop relaying if the upstream body exceeds the size ceiling.
+        // Stop relaying if the upstream body exceeds the size ceiling. Destroying
+        // with an error makes pipeline() reject so the response is torn down too.
         upstream.on('data', (chunk) => {
             bytes += chunk.length;
             if (bytes > MAX_IMAGE_BYTES) {
-                cleanup();
-                if (!res.headersSent) sendFallback(res, 502);
-                else res.destroy();
+                upstream.destroy(new Error('upstream image exceeds size limit'));
             }
         });
 
-        // Handle a broken upstream stream, even after headers have been sent.
-        upstream.on('error', () => {
-            cleanup();
-            if (!res.headersSent) sendFallback(res, 502);
-            else res.destroy();
-        });
-
-        // Client hung up: stop fetching and clear the deadline.
-        res.on('close', cleanup);
-        res.on('finish', done);
-
-        upstream.pipe(res);
+        // pipeline() propagates errors and destroys both streams on any failure —
+        // a broken/oversized upstream, the end-to-end timeout abort, or the client
+        // hanging up (res 'close') — so nothing is left dangling.
+        await pipeline(upstream, res);
+        done();
     } catch (err) {
         done();
+        controller.abort();
         if (!res.headersSent) {
             sendFallback(res, err.name === 'AbortError' ? 504 : 502);
         } else {
