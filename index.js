@@ -6,7 +6,6 @@ import rateLimit from 'express-rate-limit';
 const port = process.env.PORT || 3000;
 const COUNTER_URL = 'https://counter9.stat.ovh/private/compteurdevisite.php?c=dzct1uqm5lpgwmqn18387dkn26w125w5';
 const FETCH_TIMEOUT = 3 * 60 * 1000; // 3 minutes
-const CACHE_TTL = 60 * 1000;         // 60 seconds
 
 const app = express();
 
@@ -21,9 +20,6 @@ app.use(rateLimit({
     legacyHeaders: false
 }));
 
-// Simple in-memory cache to avoid hitting the external service on every hit
-let cache = { buffer: null, expires: 0 };
-
 app.get('/count', async (req, res) => {
     res.set({
         'content-type': 'image/png',
@@ -31,11 +27,6 @@ app.get('/count', async (req, res) => {
     });
 
     try {
-        // Serve from cache when still fresh
-        if (cache.buffer && Date.now() < cache.expires) {
-            return res.end(cache.buffer, 'binary');
-        }
-
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
 
@@ -51,7 +42,6 @@ app.get('/count', async (req, res) => {
         }
 
         const buffer = Buffer.from(await response.arrayBuffer());
-        cache = { buffer, expires: Date.now() + CACHE_TTL };
 
         return res.end(buffer, 'binary');
     } catch (err) {
