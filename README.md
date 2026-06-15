@@ -29,4 +29,4 @@
 
 ---
 
-<p align="center">Project completed in 2022 & updated in 2023</p>
+<p align="center">Project completed in 2022 & updated in 2026</p>
