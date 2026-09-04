@@ -1,0 +1,41 @@
+# Dependabot n'ouvre des pull requests que si ce fichier existe. Sans lui, seules
+# les alertes de securite du depot sont actives : elles signalent une faille mais
+# ne proposent aucun correctif, il faut bumper le lockfile a la main.
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+version: 2
+
+updates:
+  - package-ecosystem: "npm"
+    # package.json et package-lock.json sont a la racine du depot.
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Paris"
+    # Deux dependances directes seulement : une poignee de PR ouvertes suffit.
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "fix(deps)"
+      prefix-development: "chore(deps-dev)"
+      include: "scope"
+    groups:
+      # Une seule PR hebdomadaire pour tout ce qui est mineur ou patch, plutot
+      # qu'une PR par paquet. Les majeures restent hors groupe, donc une PR
+      # chacune, pour etre relues une par une.
+      npm-mineur-et-patch:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Meme logique pour les correctifs de securite : le cas qs/express traite
+      # a la main aurait tenu dans une seule PR groupee.
+      npm-securite:
+        applies-to: security-updates
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
