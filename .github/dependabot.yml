@@ -15,9 +15,12 @@ updates:
       timezone: "Europe/Paris"
     # Deux dependances directes seulement : une poignee de PR ouvertes suffit.
     open-pull-requests-limit: 5
+    # include: "scope" ajoute deja "(deps)" ou "(deps-dev)" apres le prefixe :
+    # le prefixe ne doit donc pas le contenir, sinon les titres sortent en
+    # "fix(deps)(deps): ...".
     commit-message:
-      prefix: "fix(deps)"
-      prefix-development: "chore(deps-dev)"
+      prefix: "fix"
+      prefix-development: "chore"
       include: "scope"
     groups:
       # Une seule PR hebdomadaire pour tout ce qui est mineur ou patch, plutot
